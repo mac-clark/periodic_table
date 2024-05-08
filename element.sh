@@ -3,7 +3,6 @@
 # Check if an argument is provided
 if [ $# -eq 0 ]; then
     echo "Please provide an element as an argument."
-    exit 1
 fi
 
 # Extract the argument
@@ -13,7 +12,7 @@ element=$1
 if [[ $element =~ ^[0-9]+$ ]]; then
     query="SELECT * FROM elements WHERE atomic_number = '$element';"
 else
-    query="SELECT * FROM elements WHERE symbol = '$element' OR name ILIKE '%$element%';"
+    query="SELECT * FROM elements WHERE symbol = '$element' OR name = '$element';"
 fi
 
 # Query the database and output information about the element
@@ -25,8 +24,8 @@ if [ -z "$result" ]; then
     echo "I could not find that element in the database."
 else
     atomic_number=$(echo "$result" | cut -d '|' -f 1 | tr -d '[:space:]')
-    name=$(echo "$result" | cut -d '|' -f 3 | tr -d '[:space:]')
     symbol=$(echo "$result" | cut -d '|' -f 2 | tr -d '[:space:]')
+    name=$(echo "$result" | cut -d '|' -f 3 | tr -d '[:space:]')
 
     # Query additional information about the element from properties table
     query_properties="SELECT atomic_mass, melting_point_celsius, boiling_point_celsius, types.type FROM properties INNER JOIN types ON properties.type_id = types.type_id WHERE atomic_number = '$atomic_number';"
